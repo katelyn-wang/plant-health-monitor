@@ -1,0 +1,27 @@
+#General
+.DS_Store
+node_modules/
+*.lock
+
+#Metro Bundler Cache
+/android/.gradle/
+/ios/Pods/
+/ios/build/
+/android/build/
+/android/app/build/
+
+#Sensitive Files
+.env
+*.keystore
+
+#IDE Files
+*.xcworkspace
+*.xcodeproj
+*.pbxproj
+*.xcuserdatad/
+xcuserdata/
+
+#Debug Files
+*.swp
+*.swo
+*.log
