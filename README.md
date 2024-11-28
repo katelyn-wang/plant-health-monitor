@@ -1,9 +1,9 @@
-# THRIVE: The Plant Health Monitor
+# THRIVE - The Plant Health Monitor
 
 ### Created by Katelyn Wang and Kyle Reid
 *Project in IoT (CS 147), Fall 2024*
 
-An IoT system and application that collects soil mositure, temperature, and humidity data from your plant and notifies when your plant needs care.
+An IoT system and application that collects soil moisture, temperature, and humidity data from your plant and notifies when your plant needs care.
 
 ## Frontend
 Contains the frontend code for the application. The app is created using **React Native** with an **Express.js** server.
