@@ -1,50 +1,40 @@
-# Welcome to your Expo app 👋
+# THRIVE: The Plant Health Monitor
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+### Created by Katelyn Wang and Kyle Reid
+*Project in IoT (CS 147), Fall 2024*
 
-## Get started
+An IoT system and application that collects soil mositure, temperature, and humidity data from your plant and notifies when your plant needs care.
 
-1. Install dependencies
+## Frontend
+Contains the frontend code for the application. The app is created using **React Native** with an **Express.js** server.
 
-   ```bash
-   npm install
+### Setup
+1. Navigate to the `Frontend/` folder.
+2. Run `npm install` or `yarn install` to install dependences for the app.
+3. Navigate to the `Frontend/server` folder.
+4. Run `npm install` or `yarn install` to install dependencies for the server.
+
+### To Run
+1. In `Frontend/` run this to start the React Native application on http://localhost:8081:
+   ```
+   npm run start
+   ```
+2. In a separate terminal, navigate to `Frontend/server` and run this to start the server on port 3000:
+   ```
+   node server.js
    ```
 
-2. Start the app
+3. To test sending data, send a GET request in your browser using http://localhost:3000/sensor-data?moisture=12&temperature=34&humidity=56 and check the React Native app to see if the values are displayed.
 
-   ```bash
-    npx expo start
-   ```
+## PlatformIO
+Contains the embedded code for the hardware that collects soil moisture, temperature, and humidity data from the plant and sends it to the server.
 
-In the output, you'll find options to open the app in a
+### Setup
+1. Navigate to the `platformio/` folder.
+2. Make sure the dependencies in platformio.ini are installed.
+3. Add the server's IP address to the code in `src/main.cpp`.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### To Run
+1. Build the project.
+2. Upload to the ESP32.
+3. Run the project (serial monitor).
