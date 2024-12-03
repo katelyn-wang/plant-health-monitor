@@ -14,50 +14,79 @@ export default function Input() {
         setValues({ moisture, temperature, humidity });
     };
 
+
+    const renderButtonGroup = (title: string, options: { label: string; value: string }[], selectedValue: string, setValue: React.Dispatch<React.SetStateAction<string>>) => (
+        <View style={styles.group}>
+          <View style={styles.buttonContainer}>
+            {options.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[styles.button, selectedValue === option.value && styles.selectedButton]}
+                onPress={() => setValue(option.value)}
+              >
+                <Text style={styles.buttonText}>{option.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={styles.selectedValue}>Selected {title}: {selectedValue || 'None'}</Text>
+        </View>
+      );
+
+
+
     return (
         <View style={styles.container}>
 
             
             <Text style={[styles.titleText,{color: '#9c5d0f'}]}>
-                Mositure
+                Moisture
             </Text>
-            <Text style={styles.recommend}>
+            {/* <Text style={styles.recommend}>
                 (Recommended: 21%)
-            </Text>
-            <TextInput
-                placeholder="Enter moisture..."
-                value={moisture}
-                onChangeText={setmoisture}
-                style={styles.input}
-                placeholderTextColor="rgba(0, 0, 0, 0.3)"
-            />
+            </Text> */}
+            {renderButtonGroup(
+                'Moisture',
+                [
+                { label: 'Low', value: '20,40' },
+                { label: 'Medium', value: '40,60' },
+                { label: 'High', value: '60,70' },
+                ],
+                moisture,
+                setmoisture
+            )}
             
             <Text style={[styles.titleText,{color: '#c61b48'}]}>
-                Temperature
+                Temperature (°C)
             </Text>
-            <Text style={styles.recommend}>
+            {/* <Text style={styles.recommend}>
                 (Recommended: 45)
-            </Text>
-            <TextInput
-                placeholder="Enter temperature..."
-                value={temperature}
-                onChangeText={settemperature}
-                style={styles.input}
-                placeholderTextColor="rgba(0, 0, 0, 0.3)"
-            />
+            </Text> */}
+            {renderButtonGroup(
+                'Temperature',
+                [
+                { label: 'Low', value: '15' },
+                { label: 'Medium', value: '25' },
+                { label: 'High', value: '35' },
+                ],
+                temperature,
+                settemperature
+            )}
             <Text style={[styles.titleText,{color: '#16e476'}]}>
                 Humidity
             </Text>
-            <Text style={styles.recommend}>
+            {/* <Text style={styles.recommend}>
                 (Recommended: 26)
-            </Text>
-            <TextInput
-                placeholder="Enter humidity..."
-                value={humidity}
-                onChangeText={sethumidity}
-                style={styles.input}
-                placeholderTextColor="rgba(0, 0, 0, 0.3)"
-            />
+            </Text> */}
+            {renderButtonGroup(
+                'Humidity',
+                [
+                { label: 'Low', value: '40' },
+                { label: 'Medium', value: '50' },
+                { label: 'High', value: '60' },
+                ],
+                humidity,
+                sethumidity
+            )}
 
             <TouchableOpacity 
                 style={styles.button} 
@@ -67,11 +96,11 @@ export default function Input() {
                 <Text style={styles.buttonText}>Store Values</Text>
             </TouchableOpacity>
 
-            {storedValue && (
+            {/* {storedValue && (
                 <Text style={styles.storedText}>
                     Stored Values: {storedValue}
                 </Text>
-            )}
+            )} */}
         </View>
     );
 }
@@ -108,10 +137,13 @@ const styles = StyleSheet.create({
           
     },
     recommend: {
-        paddingBottom: 6
+        paddingBottom: 5
            
     },
-   
+    group: {
+        marginBottom: 0,
+        width: '100%',
+    },
     button: {
         backgroundColor: '#14e42b', 
         paddingVertical: 10,
@@ -122,5 +154,28 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 16,
         textAlign: 'center',
+    },
+    selectedValue: {
+        fontSize: 18,
+        marginVertical: 10,
+        color: 'black',
+      },
+    storeButton: {
+        backgroundColor: '#9c5d0f',
+        padding: 15,
+        borderRadius: 5,
+      },
+    storeButtonText: {
+        color: '#fff',
+        fontSize: 16,
+      },
+    selectedButton: {
+        backgroundColor: '#9c5d0f',
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        width: '100%',
+        marginBottom: 5,
     },
 });
