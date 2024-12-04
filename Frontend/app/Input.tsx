@@ -64,9 +64,9 @@ export default function Input() {
             {renderButtonGroup(
                 'Temperature',
                 [
-                { label: 'Low', value: '15' },
-                { label: 'Medium', value: '25' },
-                { label: 'High', value: '35' },
+                { label: 'Low', value: '15,25' },
+                { label: 'Medium', value: '25,35' },
+                { label: 'High', value: '35,45' },
                 ],
                 temperature,
                 settemperature
@@ -80,9 +80,9 @@ export default function Input() {
             {renderButtonGroup(
                 'Humidity',
                 [
-                { label: 'Low', value: '40' },
-                { label: 'Medium', value: '50' },
-                { label: 'High', value: '60' },
+                { label: 'Low', value: '40,50' },
+                { label: 'Medium', value: '50,60' },
+                { label: 'High', value: '60,70' },
                 ],
                 humidity,
                 sethumidity

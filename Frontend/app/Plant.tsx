@@ -16,8 +16,19 @@ export default function Index() {
 
 
     const {moisture, temperature, humidity} = useContext(ValuesContext)!;
+    const [min_moisture, max_moisture] = moisture.split(',').map(Number);
+    const [min_temperature, max_temperature] = temperature.split(',').map(Number);
+    const [min_humidity, max_humidity] = humidity.split(',').map(Number);
 
     const [sensorData, setSensorData] = useState<SensorData | null>(null);
+
+
+
+    const createwarning = (text: string) => (
+        <View style={styles.warning}>
+          <Text style={styles.warningText}>{text}</Text>
+        </View>
+      );
 
 
     useEffect(() => {
@@ -42,24 +53,33 @@ export default function Index() {
         <View style={styles.container}>
             {moisture != "" && temperature != "" && humidity != "" ? (
                 <View style = {styles.container}>
-                    <Image style = {styles.plantImage} source={require('@/assets/images/simple_plant.jpg')}
-      />
-                        <Text style={styles.text}>
-                        Thrive! - The Plant Health Monitor
+                    
+                    <Text style={styles.temp_text}>
+                            Temperature: {sensorData?.temperature ?? 'Loading...'}°C
                         </Text>
-                        <Text style={styles.text}>
-                            Moisture: {sensorData?.moisture ?? 'Loading...'}
-                        </Text>
-                        <Text style={styles.text}>
-                            Temperature: {sensorData?.temperature ?? 'Loading...'}
-                        </Text>
-                        <Text style={styles.text}>
+                    {max_temperature < (sensorData?.temperature ?? Infinity) && createwarning(`Warning: Temperature exceeds max value ${max_temperature}`)}
+                    {min_temperature > (sensorData?.temperature ?? -Infinity) && createwarning(`Warning: Temperature is under min value ${min_temperature}`)}
+                    <Text style={styles.humid_text}>
                             Humidity: {sensorData?.humidity ?? 'Loading...'}
-                        </Text>
+                    </Text>
+                    {max_humidity < (sensorData?.humidity ?? Infinity) && createwarning(`Warning: Humidity exceeds max value ${max_humidity}`)}
+                    {min_humidity > (sensorData?.humidity ?? -Infinity) && createwarning(`Warning: Humidity is under min value ${min_humidity}`)}
+                    
+                    <Image style = {styles.plantImage} source={require('@/assets/images/basic_plant.png')}/>
+                        
+                    <Text style={styles.moist_text}>
+                        Moisture: {sensorData?.moisture ?? 'Loading...'}%
+                    </Text>
+
+                    {max_moisture < (sensorData?.moisture ?? Infinity) && createwarning(`Warning: Moisture exceeds max value ${max_moisture}`)}
+                    {min_moisture > (sensorData?.moisture ?? -Infinity) && createwarning(`Warning: Moisture is under min value ${min_moisture}`)} 
+                    
                     <Text>Moisture: {moisture}</Text>
                     <Text>Temperature: {temperature}°C</Text>
                     <Text>Humidity: {humidity}%</Text>
                 </View>
+
+
             ) : (
                 <Text style = {styles.message}>Start inputting values to get started</Text>
             )}
@@ -95,24 +115,64 @@ export default function Index() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-        backgroundColor: '#f9f1c8'
+        //justifyContent: 'center',
+        //alignItems: 'center',
+        padding: 10,
+        backgroundColor: '#f9f1c8',
+        
     },
-  text: {
+    humid_text: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: '#16e476',
+        marginBottom: 10,
+        marginTop: 30,
+        textAlign: 'left'
+    },
+    moist_text: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: '#9c5d0f',
+        marginBottom: 10,
+        textAlign: 'left'
+    },
+    temp_text: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        color: '#c61b48',
+        marginBottom: 10,
+        textAlign: 'left'
+    },
+    warning: {
+        backgroundColor: 'red', 
+        padding: 10,
+        borderRadius: 5, 
+        marginBottom: 10, 
+        alignSelf: 'stretch', 
+    },
+    warningText: {
+        color: 'white', // White text for contrast
+        fontSize: 16, // Readable font size
+        textAlign: 'center', // Center-align text
+        fontWeight: 'bold', // Makes text bold
+    },
+    text: {
       fontSize: 20,
       marginBottom: 10,
-  },
-  message: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: "#155d37"
-  },
-  plantImage: {
-    width: 100,
-    height: 100, 
-    resizeMode: 'contain'
-  }
+    },
+    message: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        color: "#155d37"
+    },
+    plantImage: {
+        width: 250,
+        height: 250, 
+        resizeMode: 'contain',
+        alignSelf: 'center',
+        marginBottom: 20,
+        marginTop: 20,
+        
+    }
 });

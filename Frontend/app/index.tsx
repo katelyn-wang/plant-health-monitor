@@ -11,8 +11,8 @@ export default function App() {
     return (
         <ValuesProvider>
             <Tab.Navigator initialRouteName="Plant">
-                <Tab.Screen name="Plant" component={Plant} />
-                <Tab.Screen name="Input" component={Input} />
+                <Tab.Screen name="Plant" component={Plant} options={{ headerShown: false }} />
+                <Tab.Screen name="Input" component={Input} options={{ headerShown: false }}/>
             </Tab.Navigator>
         </ValuesProvider>
     );
