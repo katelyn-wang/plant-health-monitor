@@ -1,12 +1,13 @@
 import React, {useContext, useState} from 'react';
-import { Text, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, TextInput, TouchableOpacity, ScrollView} from 'react-native';
 import { ValuesContext } from './ValuesContext';
 export default function Input() {
 
+    
     const { setValues } = useContext(ValuesContext)!;
-    const [moisture, setmoisture] = useState('');
-    const [temperature, settemperature] = useState('');
-    const [humidity, sethumidity] = useState('');
+    const [moisture, setmoisture] = useState('40,60');
+    const [temperature, settemperature] = useState('25,35');
+    const [humidity, sethumidity] = useState('50,60');
     const [storedValue, setStoredValue] = useState('');
 
     const handleStoreValues = () => {
@@ -36,71 +37,72 @@ export default function Input() {
 
     return (
         <View style={styles.container}>
-
+            <ScrollView>
             
-            <Text style={[styles.titleText,{color: '#9c5d0f'}]}>
-                Moisture
-            </Text>
-            {/* <Text style={styles.recommend}>
-                (Recommended: 21%)
-            </Text> */}
-            {renderButtonGroup(
-                'Moisture',
-                [
-                { label: 'Low', value: '20,40' },
-                { label: 'Medium', value: '40,60' },
-                { label: 'High', value: '60,70' },
-                ],
-                moisture,
-                setmoisture
-            )}
-            
-            <Text style={[styles.titleText,{color: '#c61b48'}]}>
-                Temperature (°C)
-            </Text>
-            {/* <Text style={styles.recommend}>
-                (Recommended: 45)
-            </Text> */}
-            {renderButtonGroup(
-                'Temperature',
-                [
-                { label: 'Low', value: '15,25' },
-                { label: 'Medium', value: '25,35' },
-                { label: 'High', value: '35,45' },
-                ],
-                temperature,
-                settemperature
-            )}
-            <Text style={[styles.titleText,{color: '#16e476'}]}>
-                Humidity
-            </Text>
-            {/* <Text style={styles.recommend}>
-                (Recommended: 26)
-            </Text> */}
-            {renderButtonGroup(
-                'Humidity',
-                [
-                { label: 'Low', value: '40,50' },
-                { label: 'Medium', value: '50,60' },
-                { label: 'High', value: '60,70' },
-                ],
-                humidity,
-                sethumidity
-            )}
-
-            <TouchableOpacity 
-                style={styles.button} 
-                onPress={handleStoreValues} 
-                testID="storeButton" // Optional ID for testing
-            >
-                <Text style={styles.buttonText}>Store Values</Text>
-            </TouchableOpacity>
-
-            {/* {storedValue && (
-                <Text style={styles.storedText}>
-                    Stored Values: {storedValue}
+                <Text style={[styles.titleText,{color: '#9c5d0f'}]}>
+                    Moisture
                 </Text>
-            )} */}
+                {/* <Text style={styles.recommend}>
+                    (Recommended: 21%)
+                </Text> */}
+                {renderButtonGroup(
+                    'Moisture',
+                    [
+                    { label: 'Low', value: '20,40' },
+                    { label: 'Medium', value: '40,60' },
+                    { label: 'High', value: '60,70' },
+                    ],
+                    moisture,
+                    setmoisture
+                )}
+                
+                <Text style={[styles.titleText,{color: '#c61b48'}]}>
+                    Temperature (°C)
+                </Text>
+                {/* <Text style={styles.recommend}>
+                    (Recommended: 45)
+                </Text> */}
+                {renderButtonGroup(
+                    'Temperature',
+                    [
+                    { label: 'Low', value: '15,25' },
+                    { label: 'Medium', value: '25,35' },
+                    { label: 'High', value: '35,45' },
+                    ],
+                    temperature,
+                    settemperature
+                )}
+                <Text style={[styles.titleText,{color: '#16e476'}]}>
+                    Humidity
+                </Text>
+                {/* <Text style={styles.recommend}>
+                    (Recommended: 26)
+                </Text> */}
+                {renderButtonGroup(
+                    'Humidity',
+                    [
+                    { label: 'Low', value: '40,50' },
+                    { label: 'Medium', value: '50,60' },
+                    { label: 'High', value: '60,70' },
+                    ],
+                    humidity,
+                    sethumidity
+                )}
+
+                <TouchableOpacity 
+                    style={styles.button} 
+                    onPress={handleStoreValues} 
+                    testID="storeButton" // Optional ID for testing
+                >
+                    <Text style={styles.buttonText}>Store Values</Text>
+                </TouchableOpacity>
+
+                {/* {storedValue && (
+                    <Text style={styles.storedText}>
+                        Stored Values: {storedValue}
+                    </Text>
+                )} */}
+            </ScrollView>
         </View>
     );
 }

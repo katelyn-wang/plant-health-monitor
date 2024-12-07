@@ -1,13 +1,15 @@
-import { Text, View, StyleSheet, Image } from "react-native";
+import { Text, View, StyleSheet, Image, ScrollView, Dimensions } from "react-native";
 import React, { useContext, useEffect, useState } from 'react';
 import { ValuesContext } from './ValuesContext'; // Import the context
-
+import { LineChart } from 'react-native-chart-kit';
 // Define the type for the sensor data
 type SensorData = {
     moisture: number;
     temperature: number;
     humidity: number;
 };
+//npm install react-native-chart-kit
+//npm install react-native-svg
 
 
 
@@ -22,13 +24,88 @@ export default function Index() {
 
     const [sensorData, setSensorData] = useState<SensorData | null>(null);
 
+    const [tempdataList, settempDataList] = useState<number[]>([]);
+    const [moistdataList, setmoistDataList] = useState<number[]>([]);
+    const [humiddataList, sethumidDataList] = useState<number[]>([]);
 
+
+    const screenWidth = Dimensions.get('window').width
+    const tempdata = {
+        labels: ['Time'],
+        datasets: [{
+          data: tempdataList,
+          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,// optional
+          strokeWidth: 2 // optional,
+          
+        }]
+    }
+    const moistdata = {
+        labels: ['Time'],
+        datasets: [{
+          data: moistdataList,
+          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,// optional
+          strokeWidth: 2 // optional,
+          
+        }]
+    }
+    const humiddata = {
+        labels: ['Time'],
+        datasets: [{
+          data: humiddataList,
+          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,// optional
+          strokeWidth: 2 // optional,
+          
+        }]
+    }
+
+
+    const tempchartConfig = {
+        backgroundGradientFrom: '#f7ab2e',
+        backgroundGradientTo: '#f7ab2e',
+        color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+        strokeWidth: 2 // optional, default 3
+    }
+
+    const moistchartConfig = {
+        backgroundGradientFrom: '#f7ab2e',
+        backgroundGradientTo: '#f7ab2e',
+        color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+        strokeWidth: 2 // optional, default 3
+    }
+
+    const humidchartConfig = {
+        backgroundGradientFrom: '#92ff80',
+        backgroundGradientTo: '#92ff80',
+        color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+        strokeWidth: 2 // optional, default 3
+    }
+
+    // function useQueue() {
+    //     const [queue, setQueue] = useState([]);
+      
+    //     const enqueue = (item) => {
+    //       setQueue([...queue, item]);
+    //     };
+      
+    //     const dequeue = () => {
+    //       if (queue.length === 0) {
+    //         return null;
+    //       }
+      
+    //       const [first, ...rest] = queue;
+    //       setQueue(rest);
+    //       return first;
+    //     };
+      
+    //     return { queue, enqueue, dequeue };
+    //   }
 
     const createwarning = (text: string) => (
         <View style={styles.warning}>
           <Text style={styles.warningText}>{text}</Text>
         </View>
       );
+
 
 
     useEffect(() => {
@@ -38,6 +115,35 @@ export default function Index() {
                 const data: SensorData = await response.json();
                 console.log("Data received in fetchData:", data);
                 setSensorData(data);
+                if (data?.temperature === undefined) return; // Ensure temperature exists
+    
+                settempDataList((prevList) => {
+                const updatedList = [...prevList, data?.temperature]; // Add new value
+                if (updatedList.length > 6) {
+                    updatedList.shift(); // Remove the oldest value if the list exceeds 6
+                }
+                //console.log(updatedList);
+                return updatedList;
+                });
+
+                sethumidDataList((prevList) => {
+                const updatedList = [...prevList, data?.humidity]; // Add new value
+                if (updatedList.length > 6) {
+                    updatedList.shift(); // Remove the oldest value if the list exceeds 6
+                }
+                //console.log(updatedList);
+                return updatedList;
+                });
+
+                setmoistDataList((prevList) => {
+                const updatedList = [...prevList, data?.moisture]; // Add new value
+                if (updatedList.length > 6) {
+                    updatedList.shift(); // Remove the oldest value if the list exceeds 6
+                }
+                //console.log(updatedList);
+                return updatedList;
+                });
+
             } catch (error) {
                 console.error('Error fetching sensor data:', error);
             }
@@ -51,9 +157,10 @@ export default function Index() {
     return (
 
         <View style={styles.container}>
+            <ScrollView>
             {moisture != "" && temperature != "" && humidity != "" ? (
                 <View style = {styles.container}>
-                    
+                    <Image style = {styles.plantImage} source={require('@/assets/images/basic_plant.png')}/>
                     <Text style={styles.temp_text}>
                             Temperature: {sensorData?.temperature ?? 'Loading...'}°C
                         </Text>
@@ -65,7 +172,7 @@ export default function Index() {
                     {max_humidity < (sensorData?.humidity ?? Infinity) && createwarning(`Warning: Humidity exceeds max value ${max_humidity}`)}
                     {min_humidity > (sensorData?.humidity ?? -Infinity) && createwarning(`Warning: Humidity is under min value ${min_humidity}`)}
                     
-                    <Image style = {styles.plantImage} source={require('@/assets/images/basic_plant.png')}/>
+                   
                         
                     <Text style={styles.moist_text}>
                         Moisture: {sensorData?.moisture ?? 'Loading...'}%
@@ -74,15 +181,63 @@ export default function Index() {
                     {max_moisture < (sensorData?.moisture ?? Infinity) && createwarning(`Warning: Moisture exceeds max value ${max_moisture}`)}
                     {min_moisture > (sensorData?.moisture ?? -Infinity) && createwarning(`Warning: Moisture is under min value ${min_moisture}`)} 
                     
-                    <Text>Moisture: {moisture}</Text>
+                    {/* <Text>Moisture: {moisture}</Text>
                     <Text>Temperature: {temperature}°C</Text>
-                    <Text>Humidity: {humidity}%</Text>
+                    <Text>Humidity: {humidity}%</Text> */}
+
+                    <View style = {{marginTop: 20}}>
+                        <Text style={{ textAlign: 'center', fontSize: 16, marginBottom: 10 }}>Temperature</Text>
+                        <LineChart
+                            key = "temperature"
+                            data={tempdata}
+                            width={screenWidth}
+                            height={220}
+                            chartConfig={tempchartConfig}
+                            yAxisSuffix="°C"
+                            style={{
+                                marginVertical: 8,
+                                borderRadius: 16,
+                              }}
+                        />
+
+                        <Text style={{ textAlign: 'center', fontSize: 16, marginBottom: 10 }}>Moisture</Text>
+                        <LineChart
+                            key = "moisture"
+                            data={moistdata}
+                            width={screenWidth}
+                            height={220}
+                            chartConfig={moistchartConfig}
+                            yAxisSuffix="°C"
+                            style={{
+                                marginVertical: 8,
+                                borderRadius: 16,
+                              }}
+                        />
+
+                        <Text style={{ textAlign: 'center', fontSize: 16, marginBottom: 10 }}>Humidity</Text>
+                        <LineChart
+                            key = "humidity"
+                            data={humiddata}
+                            width={screenWidth}
+                            height={220}
+                            chartConfig={humidchartConfig}
+                            yAxisSuffix="°C"
+                            style={{
+                                marginVertical: 8,
+                                borderRadius: 16,
+                              }}
+                        />
+                    </View>
+
+
+
                 </View>
 
 
             ) : (
                 <Text style = {styles.message}>Start inputting values to get started</Text>
             )}
+            </ScrollView>
         </View>
         // <View style={styles.container}>
         //     {moisture == "" && temperature == "" && humidity == "" && (
@@ -126,7 +281,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#16e476',
         marginBottom: 10,
-        marginTop: 30,
+        marginTop: 10,
         textAlign: 'left'
     },
     moist_text: {
@@ -140,7 +295,7 @@ const styles = StyleSheet.create({
         fontSize: 32,
         fontWeight: 'bold',
         color: '#c61b48',
-        marginBottom: 10,
+        marginTop: 10,
         textAlign: 'left'
     },
     warning: {
