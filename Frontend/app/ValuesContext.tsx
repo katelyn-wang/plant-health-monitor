@@ -9,8 +9,12 @@ type ValuesContextType = {
   setValues: (values: any) => void;
 };
 
-// Create the context with an undefined initial value
-export const ValuesContext = createContext<ValuesContextType | undefined>(undefined);
+export const ValuesContext = createContext<ValuesContextType>({
+  moistureRange: MOISTURE_RANGES.medium,
+  temperatureRange: TEMP_RANGES.medium,
+  humidityRange: HUMIDITY_RANGES.medium,
+  setValues: () => {},
+});
 
 export const ValuesProvider = ({ children }: { children: ReactNode }) => {
   const [moistureRange, setMoistureRange] = useState(MOISTURE_RANGES.medium);

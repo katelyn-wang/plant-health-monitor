@@ -10,13 +10,9 @@ type SensorData = {
     temperature: number;
     humidity: number;
 };
-//npm install react-native-chart-kit
-//npm install react-native-svg
 
 
-
-
-export default function Index() {
+export default function Plant() {
 
 
     const {moistureRange, temperatureRange, humidityRange} = useContext(ValuesContext)!;
@@ -82,8 +78,13 @@ export default function Index() {
                 const response = await fetch(`http://${SERVER_IP}:3000/sensor-data`);
                 const data: SensorData = await response.json();
                 console.log("Data received in fetchData:", data);
+                
+                if (data?.temperature === undefined || data?.temperature === null) {
+                    console.log("Received null data");
+                    return; // Ensure temperature exists
+                }
+
                 setSensorData(data);
-                if (data?.temperature === undefined) return; // Ensure temperature exists
     
                 settempDataList((prevList) => {
                 const updatedList = [...prevList, data?.temperature]; // Add new value
@@ -148,9 +149,6 @@ export default function Index() {
                     {max_humidity < (sensorData?.humidity ?? -Infinity) && createwarning(`Warning: Humidity exceeds ideal max (${max_humidity}%)`)}
                     {min_humidity > (sensorData?.humidity ?? Infinity) && createwarning(`Warning: Humidity below ideal min (${min_humidity}%)`)}
                     
-                    {/* <Text>Moisture: {moisture}</Text>
-                    <Text>Temperature: {temperature}°C</Text>
-                    <Text>Humidity: {humidity}%</Text> */}
 
                     {/* Only Render the plots if data has been received */}
                     {sensorData && (
