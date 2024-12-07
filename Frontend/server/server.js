@@ -17,6 +17,12 @@ let localData = {
     humidity: null,
 };
 
+let sensorRanges = {
+    moisture: { min: '0', max: '100' },
+    temperature: { min: '0', max: '100' },
+    humidity: { min: '0', max: '100' },
+};
+
 // Route to handle GET requests
 app.get('/sensor-data', (req, res) => {
     const { moisture, temperature, humidity } = req.query;
@@ -36,11 +42,25 @@ app.get('/sensor-data', (req, res) => {
         res.json( localData );
     }
 });
+  
+// Endpoint for React Native app to update sensor ranges
+app.post('/update-sensor-ranges', (req, res) => {
+    const { moisture, temperature, humidity } = req.body;
 
-// Start the server
-// app.listen(PORT, () => {
-//     console.log(`Server is running at http://localhost:${PORT}`);
-// });
+    if (!moisture || !temperature || !humidity) {
+        return res.status(400).send(
+            { error: 'All sensor ranges are required (moisture, temperature, humidity)' });
+    }
+
+    sensorRanges = { moisture, temperature, humidity };
+    res.status(200).send({ message: 'Sensor ranges updated successfully' });
+});
+
+// Endpoint for ESP32 to fetch sensor ranges
+app.get('/sensor-ranges', (req, res) => {
+    res.status(200).json(sensorRanges);
+});
+
 
 // Listen on 0.0.0.0 to accept requests from other devices on the same network
 app.listen(PORT, '0.0.0.0', () => {

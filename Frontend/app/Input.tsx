@@ -1,19 +1,53 @@
 import React, {useContext, useState} from 'react';
 import { Text, View, StyleSheet, TextInput, TouchableOpacity, ScrollView} from 'react-native';
 import { ValuesContext } from './ValuesContext';
+import { SERVER_IP, MOISTURE_RANGES, TEMP_RANGES, HUMIDITY_RANGES } from '../constants';
+
 export default function Input() {
 
     
     const { setValues } = useContext(ValuesContext)!;
-    const [moisture, setmoisture] = useState('40,60');
-    const [temperature, settemperature] = useState('25,35');
-    const [humidity, sethumidity] = useState('50,60');
+    const [moistureRange, setmoistureRange] = useState(MOISTURE_RANGES.medium);
+    const [temperatureRange, settemperatureRange] = useState(TEMP_RANGES.medium);
+    const [humidityRange, sethumidityRange] = useState(HUMIDITY_RANGES.medium);
     const [storedValue, setStoredValue] = useState('');
 
     const handleStoreValues = () => {
-        setStoredValue(`Text 1: ${moisture}, Text 2: ${temperature}, Text 3: ${humidity}`);
-        setValues({ moisture, temperature, humidity });
+        setStoredValue(`\nMoisture: [${moistureRange}]%, \nTemperature: [${temperatureRange}]°C, \nHumidity: [${humidityRange}]%`);
+        setValues({ moistureRange, temperatureRange, humidityRange });
+        updateSensorRanges();
     };
+
+    const updateSensorRanges = async () => {
+
+        var [min_moisture, max_moisture] = moistureRange.split(',').map(Number);
+        var [min_temperature, max_temperature] = temperatureRange.split(',').map(Number);
+        var [min_humidity, max_humidity] = humidityRange.split(',').map(Number);
+
+        try {
+            const response = await fetch(`http://${SERVER_IP}:3000/update-sensor-ranges`, {
+              method: 'POST', // HTTP method
+              headers: {
+                'Content-Type': 'application/json', // Set content type
+              },
+              body: JSON.stringify({
+                moisture: { min: min_moisture, max: max_moisture },
+                temperature: { min: min_temperature, max: max_temperature },
+                humidity: { min: min_humidity, max: max_humidity }, 
+              }),
+            });
+      
+            const data = await response.json(); // Parse the JSON response
+      
+            if (response.ok) {
+              console.log('Response:', data);
+            } else {
+              console.log('Error', `Failed to send data: ${data.message || 'Unknown error'}`);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+          }
+    }
 
 
     const renderButtonGroup = (title: string, options: { label: string; value: string }[], selectedValue: string, setValue: React.Dispatch<React.SetStateAction<string>>) => (
@@ -39,8 +73,8 @@ export default function Input() {
         <View style={styles.container}>
             <ScrollView>
             
-                <Text style={[styles.titleText,{color: '#9c5d0f'}]}>
-                    Moisture
+                <Text style={[styles.titleText,{color: '#49a3c4'}]}>
+                    Moisture (%)
                 </Text>
                 {/* <Text style={styles.recommend}>
                     (Recommended: 21%)
@@ -48,12 +82,12 @@ export default function Input() {
                 {renderButtonGroup(
                     'Moisture',
                     [
-                    { label: 'Low', value: '20,40' },
-                    { label: 'Medium', value: '40,60' },
-                    { label: 'High', value: '60,70' },
+                    { label: 'Low', value: MOISTURE_RANGES.low },
+                    { label: 'Medium', value: MOISTURE_RANGES.medium },
+                    { label: 'High', value: MOISTURE_RANGES.high },
                     ],
-                    moisture,
-                    setmoisture
+                    moistureRange,
+                    setmoistureRange
                 )}
                 
                 <Text style={[styles.titleText,{color: '#c61b48'}]}>
@@ -65,15 +99,15 @@ export default function Input() {
                 {renderButtonGroup(
                     'Temperature',
                     [
-                    { label: 'Low', value: '15,25' },
-                    { label: 'Medium', value: '25,35' },
-                    { label: 'High', value: '35,45' },
+                    { label: 'Low', value: TEMP_RANGES.low },
+                    { label: 'Medium', value: TEMP_RANGES.medium },
+                    { label: 'High', value: TEMP_RANGES.high },
                     ],
-                    temperature,
-                    settemperature
+                    temperatureRange,
+                    settemperatureRange
                 )}
-                <Text style={[styles.titleText,{color: '#16e476'}]}>
-                    Humidity
+                <Text style={[styles.titleText,{color: '#57a630'}]}>
+                    Humidity (%)
                 </Text>
                 {/* <Text style={styles.recommend}>
                     (Recommended: 26)
@@ -81,27 +115,27 @@ export default function Input() {
                 {renderButtonGroup(
                     'Humidity',
                     [
-                    { label: 'Low', value: '40,50' },
-                    { label: 'Medium', value: '50,60' },
-                    { label: 'High', value: '60,70' },
+                    { label: 'Low', value: HUMIDITY_RANGES.low },
+                    { label: 'Medium', value: HUMIDITY_RANGES.medium },
+                    { label: 'High', value: HUMIDITY_RANGES.high },
                     ],
-                    humidity,
-                    sethumidity
+                    humidityRange,
+                    sethumidityRange
                 )}
 
                 <TouchableOpacity 
-                    style={styles.button} 
+                    style={styles.storeButton} 
                     onPress={handleStoreValues} 
                     testID="storeButton" // Optional ID for testing
                 >
                     <Text style={styles.buttonText}>Store Values</Text>
                 </TouchableOpacity>
 
-                {/* {storedValue && (
+                {storedValue && (
                     <Text style={styles.storedText}>
-                        Stored Values: {storedValue}
+                        {storedValue}
                     </Text>
-                )} */}
+                )}
             </ScrollView>
         </View>
     );
@@ -127,9 +161,9 @@ const styles = StyleSheet.create({
         
     },
     storedText: {
-        marginTop: 20,
+        marginTop: 0,
         fontSize: 16,
-        
+        textAlign: 'center',
         
     },
     titleText: {
@@ -147,9 +181,10 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     button: {
-        backgroundColor: '#14e42b', 
+        backgroundColor: '#9c5d0f', 
         paddingVertical: 10,
         paddingHorizontal: 20,
+        marginTop: 10,
         borderRadius: 5,
     },
     buttonText: {
@@ -161,18 +196,22 @@ const styles = StyleSheet.create({
         fontSize: 18,
         marginVertical: 10,
         color: 'black',
-      },
+    },
     storeButton: {
-        backgroundColor: '#9c5d0f',
-        padding: 15,
+        backgroundColor: '#523209',
+        padding: 10,
         borderRadius: 5,
-      },
+        marginTop: 30,
+    },
     storeButtonText: {
         color: '#fff',
         fontSize: 16,
       },
     selectedButton: {
-        backgroundColor: '#9c5d0f',
+        backgroundColor: '#63cf2d',
+        color: 'white',
+        fontSize: 16,
+        textAlign: 'center',
     },
     buttonContainer: {
         flexDirection: 'row',

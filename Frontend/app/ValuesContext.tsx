@@ -1,10 +1,11 @@
 import React, { createContext, useState, ReactNode } from 'react';
+import { MOISTURE_RANGES, TEMP_RANGES, HUMIDITY_RANGES } from '@/constants';
 
 // Define the context's shape
 type ValuesContextType = {
-  moisture: string;
-  temperature: string;
-  humidity: string;
+  moistureRange: string;
+  temperatureRange: string;
+  humidityRange: string;
   setValues: (values: any) => void;
 };
 
@@ -12,20 +13,22 @@ type ValuesContextType = {
 export const ValuesContext = createContext<ValuesContextType | undefined>(undefined);
 
 export const ValuesProvider = ({ children }: { children: ReactNode }) => {
-  const [moisture, setMoisture] = useState('');
-  const [temperature, setTemperature] = useState('');
-  const [humidity, setHumidity] = useState('');
+  const [moistureRange, setMoistureRange] = useState(MOISTURE_RANGES.medium);
+  const [temperatureRange, setTemperatureRange] = useState(TEMP_RANGES.medium);
+  const [humidityRange, setHumidityRange] = useState(HUMIDITY_RANGES.medium);
 
   // Function to update all values at once
   const setValues = (values: any) => {
-    setMoisture(values.moisture);
-    setTemperature(values.temperature);
-    setHumidity(values.humidity);
+    setMoistureRange(values.moistureRange);
+    setTemperatureRange(values.temperatureRange);
+    setHumidityRange(values.humidityRange);
   };
 
   return (
-    <ValuesContext.Provider value={{ moisture, temperature, humidity, setValues }}>
+    <ValuesContext.Provider value={{ moistureRange, temperatureRange, humidityRange, setValues }}>
       {children}
     </ValuesContext.Provider>
   );
 };
+
+export default ValuesProvider;
