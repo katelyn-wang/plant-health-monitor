@@ -1,12 +1,16 @@
-// #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <WiFi.h>
 #include <HttpClient.h>
 #include "nvs.h"
 #include "nvs_flash.h"
 #include "DHT20.h"
 
+#define BLUE_PIN 33   // moisture
+#define RED_PIN 25    // temperature
+#define YELLOW_PIN 26 // humidity
+
 /* 
- * ADD THE SERVER'S IP ADDRESS HERE (local computer's IP)!
+ * ADD THE SERVER'S IP ADDRESS HERE!
  */
 const char* serverIP =   // "xxx.xxx.xxx.xxx"; 
 
@@ -29,6 +33,14 @@ float humidity;
 const int kNetworkTimeout = 30 * 1000;
 // Number of milliseconds to wait if no data is available before trying again
 const int kNetworkDelay = 1000;
+
+// Values for the ideal sensor ranges
+float minMoisture = 20;
+float maxMoisture = 40;
+float minTemp = 20;
+float maxTemp = 29;
+float minHumidity = 40;
+float maxHumidity = 60;
 
 void nvs_access()
 {
@@ -107,6 +119,10 @@ void setup()
   Serial.println("MAC address: ");
   Serial.println(WiFi.macAddress());
 
+  pinMode(BLUE_PIN, OUTPUT);
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(YELLOW_PIN, OUTPUT);
+
   // Set up temp/humidity sensor
   Wire.begin(); //  ESP32 default pins 21 22
   if (!DHT.begin())
@@ -120,6 +136,11 @@ void setup()
 
 void loop()
 {
+  // TODO: GET request to /sensor-ranges to update the min and max sensor values
+
+
+  // Read the moisture, temperature, and humidity data from the sensors
+
   soilMoistureValue = analogRead(soilMoisturePin);
   moisture = 100 - ((soilMoistureValue / 4095.00) * 100);
 
@@ -144,6 +165,33 @@ void loop()
   Serial.print("Humidity: ");
   Serial.print(humidity, 1);
   Serial.println();
+
+  // If moisture is out of the ideal range, light up the Blue LED
+  if (moisture < minMoisture || moisture > maxMoisture) {
+    digitalWrite(BLUE_PIN, HIGH);
+  }
+  else {
+    digitalWrite(BLUE_PIN, LOW);
+  }
+
+  // If temperature is out of the ideal range, light up the Red LED
+  if (temp < minTemp || temp > maxTemp){
+    digitalWrite(RED_PIN, HIGH);
+  }
+  else {
+    digitalWrite(RED_PIN, LOW);
+  }
+
+  // If humidity is out of the ideal range, light up the Yellow LED
+  if (humidity < minHumidity || humidity > maxHumidity) {
+    digitalWrite(YELLOW_PIN, HIGH);
+  }
+  else {
+    digitalWrite(YELLOW_PIN, LOW);
+  }
+
+
+  // Send sensor data to the backend server
 
   String params = "/sensor-data?moisture=" 
     + String(moisture) + "&temperature=" + String(DHT.getTemperature()) 
