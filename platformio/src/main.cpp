@@ -7,7 +7,7 @@
 
 #define BLUE_PIN 33   // moisture
 #define RED_PIN 25    // temperature
-#define YELLOW_PIN 26 // humidity
+#define GREEN_PIN 26 // humidity
 
 /* 
  * ADD THE SERVER'S IP ADDRESS HERE!
@@ -121,7 +121,7 @@ void setup()
 
   pinMode(BLUE_PIN, OUTPUT);
   pinMode(RED_PIN, OUTPUT);
-  pinMode(YELLOW_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
 
   // Set up temp/humidity sensor
   Wire.begin(); //  ESP32 default pins 21 22
@@ -136,7 +136,102 @@ void setup()
 
 void loop()
 {
-  // TODO: GET request to /sensor-ranges to update the min and max sensor values
+  int err = 0;
+  WiFiClient c;
+  HttpClient http(c);
+  String jsonResponse = "";
+
+  // GET request to /sensor-ranges to update the min and max sensor values
+  if (WiFi.status() == WL_CONNECTED) {
+    err = 0;
+    err = http.get(serverIP, 3000, "/sensor-ranges", NULL);
+
+    if (err == 0)
+    {
+      Serial.println("startedRequest ok");
+      err = http.responseStatusCode();
+      if (err >= 0)
+      {
+        Serial.print("Got status code: ");
+        Serial.println(err);
+        // Usually you'd check that the response code is 200 or a
+        // similar "success" code (200-299) before carrying on,
+        // but we'll print out whatever response we get
+        err = http.skipResponseHeaders();
+        if (err >= 0)
+        {
+          int bodyLen = http.contentLength();
+          Serial.print("Content length is: ");
+          Serial.println(bodyLen);
+          Serial.println();
+          Serial.println("Body returned follows:");
+          // Now we've got to the body, so we can print it out
+          unsigned long timeoutStart = millis();
+          char c;
+          // Whilst we haven't timed out & haven't reached the end of the body
+          while ((http.connected() || http.available()) &&
+                ((millis() - timeoutStart) < kNetworkTimeout))
+          {
+            if (http.available())
+            {
+              c = http.read();
+              jsonResponse += c;
+              // Print out this character
+              Serial.print(c);
+              bodyLen--;
+              // We read something, reset the timeout counter
+              timeoutStart = millis();
+            }
+            else
+            {
+              // We haven't got any data, so let's pause to allow some to arrive
+              delay(kNetworkDelay);
+            }
+          }
+
+          Serial.println();
+
+          // Parse the JSON to extract min and max values for sensor ranges
+          StaticJsonDocument<256> doc;
+          DeserializationError error = deserializeJson(doc, jsonResponse);
+
+          if (error) {
+            Serial.print("Failed to parse JSON: ");
+            Serial.println(error.c_str());
+          }
+          else {
+            // Update the min and max values
+            minMoisture = atof(doc["moisture"]["min"]);
+            maxMoisture = atof(doc["moisture"]["max"]);
+            minTemp = atof(doc["temperature"]["min"]);
+            maxTemp = atof(doc["temperature"]["max"]);
+            minHumidity = atof(doc["humidity"]["min"]);
+            maxHumidity = atof(doc["humidity"]["max"]);
+          }
+
+        }
+        else
+        {
+          Serial.print("Failed to skip response headers: ");
+          Serial.println(err);
+        }
+      }
+      else
+      {
+        Serial.print("Getting response failed: ");
+        Serial.println(err);
+      }
+    }
+    else
+    {
+      Serial.print("Connect failed: ");
+      Serial.println(err);
+    }
+    http.stop();
+
+    Serial.println();
+
+  }
 
 
   // Read the moisture, temperature, and humidity data from the sensors
@@ -182,88 +277,88 @@ void loop()
     digitalWrite(RED_PIN, LOW);
   }
 
-  // If humidity is out of the ideal range, light up the Yellow LED
+  // If humidity is out of the ideal range, light up the Green LED
   if (humidity < minHumidity || humidity > maxHumidity) {
-    digitalWrite(YELLOW_PIN, HIGH);
+    digitalWrite(GREEN_PIN, HIGH);
   }
   else {
-    digitalWrite(YELLOW_PIN, LOW);
+    digitalWrite(GREEN_PIN, LOW);
   }
 
 
   // Send sensor data to the backend server
 
-  String params = "/sensor-data?moisture=" 
-    + String(moisture) + "&temperature=" + String(DHT.getTemperature()) 
-    + "&humidity=" + String(DHT.getHumidity());
-  
-  int err = 0;
-  WiFiClient c;
-  HttpClient http(c);
-  // need to change IP address to that of your local computer
-  err = http.get(serverIP, 3000, params.c_str(), NULL);
-  
-  if (err == 0)
+  if (WiFi.status() == WL_CONNECTED) 
   {
-    Serial.println("startedRequest ok");
-    err = http.responseStatusCode();
-    if (err >= 0)
+    String params = "/sensor-data?moisture=" 
+      + String(moisture) + "&temperature=" + String(DHT.getTemperature()) 
+      + "&humidity=" + String(DHT.getHumidity());
+    
+    err = 0;
+
+    err = http.get(serverIP, 3000, params.c_str(), NULL);
+    
+    if (err == 0)
     {
-      Serial.print("Got status code: ");
-      Serial.println(err);
-      // Usually you'd check that the response code is 200 or a
-      // similar "success" code (200-299) before carrying on,
-      // but we'll print out whatever response we get
-      err = http.skipResponseHeaders();
+      Serial.println("startedRequest ok");
+      err = http.responseStatusCode();
       if (err >= 0)
       {
-        int bodyLen = http.contentLength();
-        Serial.print("Content length is: ");
-        Serial.println(bodyLen);
-        Serial.println();
-        Serial.println("Body returned follows:");
-        // Now we've got to the body, so we can print it out
-        unsigned long timeoutStart = millis();
-        char c;
-        // Whilst we haven't timed out & haven't reached the end of the body
-        while ((http.connected() || http.available()) &&
-               ((millis() - timeoutStart) < kNetworkTimeout))
+        Serial.print("Got status code: ");
+        Serial.println(err);
+        // Usually you'd check that the response code is 200 or a
+        // similar "success" code (200-299) before carrying on,
+        // but we'll print out whatever response we get
+        err = http.skipResponseHeaders();
+        if (err >= 0)
         {
-          if (http.available())
+          int bodyLen = http.contentLength();
+          Serial.print("Content length is: ");
+          Serial.println(bodyLen);
+          Serial.println();
+          Serial.println("Body returned follows:");
+          // Now we've got to the body, so we can print it out
+          unsigned long timeoutStart = millis();
+          char c;
+          // Whilst we haven't timed out & haven't reached the end of the body
+          while ((http.connected() || http.available()) &&
+                ((millis() - timeoutStart) < kNetworkTimeout))
           {
-            c = http.read();
-            // Print out this character
-            Serial.print(c);
-            bodyLen--;
-            // We read something, reset the timeout counter
-            timeoutStart = millis();
+            if (http.available())
+            {
+              c = http.read();
+              // Print out this character
+              Serial.print(c);
+              bodyLen--;
+              // We read something, reset the timeout counter
+              timeoutStart = millis();
+            }
+            else
+            {
+              // We haven't got any data, so let's pause to allow some to arrive
+              delay(kNetworkDelay);
+            }
           }
-          else
-          {
-            // We haven't got any data, so let's pause to allow some to
-            // arrive
-            delay(kNetworkDelay);
-          }
+        }
+        else
+        {
+          Serial.print("Failed to skip response headers: ");
+          Serial.println(err);
         }
       }
       else
       {
-        Serial.print("Failed to skip response headers: ");
+        Serial.print("Getting response failed: ");
         Serial.println(err);
       }
     }
     else
     {
-      Serial.print("Getting response failed: ");
+      Serial.print("Connect failed: ");
       Serial.println(err);
     }
+    http.stop();
   }
-  else
-  {
-    Serial.print("Connect failed: ");
-    Serial.println(err);
-  }
-  http.stop();
 
   Serial.println();
   delay(2000);
