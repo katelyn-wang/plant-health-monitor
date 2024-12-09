@@ -152,7 +152,7 @@ export default function Plant() {
 
                     {/* Only Render the plots if data has been received */}
                     {sensorData && (
-                    <div>
+                    <View>
                         <View style = {{marginTop: 20}}>
                             <Text style={{ textAlign: 'center', fontSize: 16, marginBottom: 10 }}>Moisture</Text>
                             <LineChart
@@ -200,7 +200,7 @@ export default function Plant() {
                                 }}
                             />
                         </View>
-                    </div>
+                    </View>
                     )}
 
 
