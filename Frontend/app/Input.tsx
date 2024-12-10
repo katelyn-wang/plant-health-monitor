@@ -20,9 +20,9 @@ export default function Input() {
 
     const updateSensorRanges = async () => {
 
-        var [min_moisture, max_moisture] = moistureRange.split(',').map(Number);
-        var [min_temperature, max_temperature] = temperatureRange.split(',').map(Number);
-        var [min_humidity, max_humidity] = humidityRange.split(',').map(Number);
+        var [min_moisture, max_moisture] = moistureRange.split(',').map(String);
+        var [min_temperature, max_temperature] = temperatureRange.split(',').map(String);
+        var [min_humidity, max_humidity] = humidityRange.split(',').map(String);
 
         try {
             const response = await fetch(`http://${SERVER_IP}:3000/update-sensor-ranges`, {
