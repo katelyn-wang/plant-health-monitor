@@ -1,4 +1,4 @@
-# 🌱THRIVE - The Plant Health Monitor
+# 🌱 t h r i v e - plant health monitor
 
 ### Created by Katelyn Wang and Kyle Reid
 *Project in IoT (CS 147), Fall 2024*
